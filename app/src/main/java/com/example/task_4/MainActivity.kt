@@ -72,8 +72,7 @@ fun HomeScreen() {
                     .fillMaxSize()
                     .background(BlueShade)
             ) {
-               // PaymentFailedScreen()
-                PaymentReceivedScreen()
+                LoadPaymentScreen(false)
             }
         }, topBar = {
             CenterAlignedTopAppBar(
@@ -92,7 +91,8 @@ fun HomeScreen() {
 }
 
 @Composable
-fun PaymentFailedScreen() {
+fun LoadPaymentScreen(isPaymentSuccessful: Boolean) {
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -107,14 +107,14 @@ fun PaymentFailedScreen() {
                     border =
                     BorderStroke(
                         1.dp,
-                        RedTint
+                        if (isPaymentSuccessful) GreenTint else RedTint
                     ),
                     shape = CircleShape
                 )
         )
         {
             Image(
-                painter = painterResource(id = R.drawable.cross),
+                painter = painterResource(id = if (isPaymentSuccessful) R.drawable.tick else R.drawable.cross),
                 contentDescription = "app logo",
                 modifier = Modifier
                     .width(30.dp)
@@ -125,150 +125,88 @@ fun PaymentFailedScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Payment Failed",
+            text = if (isPaymentSuccessful) "Payment Received" else "Payment Failed",
             color = Color.White,
             fontSize = 24.sp
         )
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "You have insufficient fund.",
+            text = if (isPaymentSuccessful) "We’ve received your payment, Sanjeet." else "You have insufficient fund.",
             color = GrayText,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .width(300.dp)
-                .height(40.dp)
-                .clip(RoundedCornerShape(2.dp)),
-            colors = ButtonDefaults.buttonColors(RedTint),
-            shape = RoundedCornerShape(size = 2.dp),
-        ) {
-            Text(text = "Retry Payment", fontSize = 14.sp)
-        }
+        if (isPaymentSuccessful) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(BlueBox)
+                ) {
+                    Text(
+                        modifier = Modifier.padding(
+                            start = 32.dp,
+                            top = 32.dp,
+                            end = 32.dp
+                        ), text = "Payment Details", color = Color.White, fontSize = 12.sp
+                    )
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 32.dp, top = 8.dp, end = 32.dp), thickness = 2.dp,
+                        color = GrayTint
+                    )
+                    LazyColumn(
+                        modifier = Modifier.padding(
+                            start = 32.dp,
+                            bottom = 32.dp,
+                            end = 32.dp
+                        )
+                    ) {
+                        val itemList = getItemList()
+                        items(itemList) { item ->
+                            ListItem(
+                                attribute = item.first,
+                                value = item.second,
+                                itemList.indexOf(item) == itemList.lastIndex
+                            )
+                        }
+                    }
+                }
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            LoadButton(onClick = {}, text = "Continue", tint = RedTint)
 
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .width(300.dp)
-                .height(40.dp)
-                .clip(RoundedCornerShape(2.dp)),
-            colors = ButtonDefaults.buttonColors(BlueTint),
-            shape = RoundedCornerShape(size = 2.dp),
-        ) {
-            Text(text = "Cancel", fontSize = 14.sp)
+        } else {
+
+            LoadButton(onClick = {}, text = "Retry Payment", tint = RedTint)
+            Spacer(modifier = Modifier.height(8.dp))
+            LoadButton(onClick = {}, text = "Cancel", tint = BlueTint)
         }
     }
 }
 
 @Composable
-fun PaymentReceivedScreen() {
-    Column(
+fun LoadButton(onClick: () -> Unit, text: String, tint: Color) {
+    Button(
+        onClick = onClick,
         modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = CenterHorizontally
+            .width(300.dp)
+            .height(40.dp)
+            .clip(RoundedCornerShape(2.dp)),
+        colors = ButtonDefaults.buttonColors(tint),
+        shape = RoundedCornerShape(size = 2.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .align(CenterHorizontally)
-                .border(
-                    border =
-                    BorderStroke(
-                        1.dp,
-                        GreenTint
-                    ),
-                    shape = CircleShape
-                )
-        )
-        {
-            Image(
-                painter = painterResource(id = R.drawable.tick),
-                contentDescription = "app logo",
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-                    .align(Alignment.Center)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Payment Received",
-            color = Color.White,
-            fontSize = 24.sp
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "We’ve received your payment, Sanjeet.",
-            color = GrayText,
-            fontSize = 14.sp
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(BlueBox)
-            ) {
-                Text(
-                    modifier = Modifier.padding(
-                        start = 32.dp,
-                        top = 32.dp,
-                        end = 32.dp
-                    ), text = "Payment Details", color = Color.White, fontSize = 12.sp
-                )
-                Divider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 32.dp, top = 8.dp, end = 32.dp), thickness = 2.dp,
-                    color = GrayTint
-                )
-                LazyColumn(
-                    modifier = Modifier.padding(
-                        start = 32.dp,
-                        bottom = 32.dp,
-                        end = 32.dp
-                    )
-                ) {
-                    val itemList = getItemList()
-                    items(itemList) { item ->
-                        ListItem(
-                            attribute = item.first,
-                            value = item.second,
-                            itemList.indexOf(item) == itemList.lastIndex
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .width(300.dp)
-                .height(40.dp)
-                .clip(RoundedCornerShape(2.dp)),
-            colors = ButtonDefaults.buttonColors(RedTint),
-            shape = RoundedCornerShape(size = 2.dp),
-        ) {
-            Text(text = "Continue", fontSize = 14.sp)
-        }
+        Text(text = text, fontSize = 14.sp)
     }
 }
 
